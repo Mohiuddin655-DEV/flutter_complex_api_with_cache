@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
     return BlocProvider<RepositoryCubit>(
       create: (context) => locator()..loadFirst(),
       child: Scaffold(
-        appBar: homeAppBar(context),
+        appBar: homeAppBar(context, isConnected: true),
         body: const HomeBody(),
       ),
     );

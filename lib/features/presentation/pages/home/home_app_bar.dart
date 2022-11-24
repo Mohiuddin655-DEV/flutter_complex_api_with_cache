@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-AppBar homeAppBar(BuildContext context) {
+AppBar homeAppBar(BuildContext context, {final isConnected = true}) {
+  final textColor = isConnected ? Colors.black : Colors.white;
+  final backGroundColor = isConnected ? Colors.white : Colors.blue;
+  final systemOverlay = isConnected
+      ? const SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+          statusBarIconBrightness: Brightness.dark,
+        )
+      : SystemUiOverlayStyle.light;
   return AppBar(
-    title: const Text(
+    title: Text(
       "Gitstore",
       style: TextStyle(
-        color: Colors.black,
+        color: textColor,
       ),
     ),
-    systemOverlayStyle: const SystemUiOverlayStyle(
-      statusBarColor: Colors.white,
-      statusBarIconBrightness: Brightness.dark,
-    ),
-    backgroundColor: Colors.white,
+    systemOverlayStyle: systemOverlay,
+    backgroundColor: backGroundColor,
     elevation: 0.5,
   );
 }

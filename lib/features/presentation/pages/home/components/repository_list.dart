@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gitstore/core/utils/widget_controller.dart';
+import 'package:flutter_gitstore/core/utils/controllers/widget_controller.dart';
 import 'package:flutter_gitstore/features/presentation/cubits/cubit_state.dart';
 import 'package:flutter_gitstore/features/presentation/cubits/repository_cubit.dart';
 import 'package:flutter_gitstore/features/presentation/pages/home/components/repository_item.dart';

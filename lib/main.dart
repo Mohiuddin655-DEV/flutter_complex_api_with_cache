@@ -4,6 +4,7 @@ import 'package:flutter_gitstore/locator.dart';
 import 'features/presentation/pages/home/home_page.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await init();
   runApp(const MyApp());
 }

@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter_gitstore/core/constants/app_info.dart';
-import 'package:flutter_gitstore/features/data/remote/data_sources/response_data_source.dart';
+import 'package:flutter_gitstore/features/data/remote/data_sources/remote_response_data_source.dart';
 import 'package:flutter_gitstore/features/data/remote/models/response_model.dart';
 import 'package:flutter_gitstore/features/domain/entities/repository_entity.dart';
 import 'package:http/http.dart' as http;
 
-class ResponseDataSourceImpl extends ResponseDataSource {
+class RemoteResponseDataSourceImpl extends RemoteResponseDataSource {
   @override
-  Future<List<RepositoryEntity>> getEntities({
+  Future<List<RepositoryEntity>> getRepositories({
     required Map<String, String> queryParameters,
   }) async {
     try {

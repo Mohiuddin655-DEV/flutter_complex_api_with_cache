@@ -1,15 +1,27 @@
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gitstore/features/domain/use_cases/get_repositories_use_case.dart';
+import 'package:flutter_gitstore/features/domain/use_cases/connectivity_use_case.dart';
 import 'package:flutter_gitstore/features/presentation/cubits/cubit_state.dart';
+
+import '../../domain/use_cases/get_local_repositories_use_case.dart';
+import '../../domain/use_cases/get_remote_repositories_use_case.dart';
+import '../../domain/use_cases/set_local_repositories_use_case.dart';
 
 class RepositoryCubit extends Cubit<CubitState> {
   late int mPage = 0;
   late int mRetryValue = 0;
 
-  final GetRepositoriesUseCase getRepositoriesUseCase;
+  final ConnectivityUseCase connectivityUseCase;
+  final SetLocalRepositoriesUseCase setLocalRepositoriesUseCase;
+  final GetLocalRepositoriesUseCase getLocalRepositoriesUseCase;
+  final GetRemoteRepositoriesUseCase getRemoteRepositoriesUseCase;
 
   RepositoryCubit({
-    required this.getRepositoriesUseCase,
+    required this.connectivityUseCase,
+    required this.setLocalRepositoriesUseCase,
+    required this.getLocalRepositoriesUseCase,
+    required this.getRemoteRepositoriesUseCase,
   }) : super(CubitState(
           isFirstLoading: false,
           isLoading: false,
@@ -44,13 +56,31 @@ class RepositoryCubit extends Cubit<CubitState> {
     emit(loadingState);
 
     try {
-      final data = await getRepositoriesUseCase.getEntities(
-        queryParameters: _generateQueryOptions(),
-      );
+      final isConnected = await connectivityUseCase.isConnected;
 
       final currentData = state.result;
+      final options = getQueryOptions(
+        page: mPage,
+        limit: 10,
+      );
+      if (isConnected) {
+        final data = await getRemoteRepositoriesUseCase.getRepositories(
+          queryParameters: options,
+        );
 
-      currentData.addAll(data);
+        setLocalRepositoriesUseCase.setRepositories(
+          key: "repositories_${getKey(options: options)}",
+          repositories: data,
+        );
+
+        currentData.addAll(data);
+      } else {
+        final data = await getLocalRepositoriesUseCase.getRepositories(
+          key: "repositories_${getKey(options: options)}",
+        );
+
+        currentData.addAll(data);
+      }
 
       final loadedState = state.copyWith(
         isFirstLoading: false,
@@ -58,7 +88,7 @@ class RepositoryCubit extends Cubit<CubitState> {
         result: currentData,
       );
 
-      print(loadedState);
+      log("$loadedState");
 
       emit(loadedState);
     } catch (e) {
@@ -74,18 +104,28 @@ class RepositoryCubit extends Cubit<CubitState> {
     }
   }
 
-  Map<String, String> _getDefaultMap() {
-    return {'q': 'Flutter', 'per_page': "10", 'page': "$mPage"};
+  String getKey({required Map<String, dynamic> options}) {
+    final page = options['page'];
+    if (!options.containsKey('sort')) {
+      return 'sort_none_page_$page';
+    } else {
+      final sort = options['sort'];
+      return 'sort_${sort}_page_$page';
+    }
   }
 
-  Map<String, String> _generateQueryOptions() {
-    const val = 1;
-    final mp = _getDefaultMap();
+  Map<String, String> getQueryOptions({int page = 1, int limit = 10}) {
+    const val = 3;
+    final options = {
+      'q': 'Flutter',
+      'per_page': '$limit',
+      'page': "$page",
+    };
     if (val == 2) {
-      mp['sort'] = 'stars';
+      options['sort'] = 'stars';
     } else if (val == 3) {
-      mp['sort'] = 'updated';
+      options['sort'] = 'updated';
     }
-    return mp;
+    return options;
   }
 }
